@@ -29,12 +29,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        forward_button.setOnClickListener {
-//            forward()
-//        }
-
-        
-
         // android 6.0 and later
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // check the permission status
@@ -48,6 +42,18 @@ class MainActivity : AppCompatActivity() {
             //android 5.0 or before
         } else {
             getContentInfo()
+        }
+
+        forward_button.setOnClickListener {
+            forward()
+        }
+
+        back_button.setOnClickListener {
+            back()
+        }
+
+        play_button.setOnClickListener {
+            PlayAndPause()
         }
     }
 
@@ -83,18 +89,12 @@ class MainActivity : AppCompatActivity() {
         } while (cursor!!.moveToNext())
         }
 
-        forward()
-
-        back()
-
-        PlayAndPause()
-
         // TODO cursor.close() move to onDestroy()
 
     }
 
     private fun back() {
-        back_button.setOnClickListener {
+
 
             if (cursor!!.moveToPrevious()) {
                 val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
@@ -110,11 +110,11 @@ class MainActivity : AppCompatActivity() {
 
                 imageView.setImageURI(imageUri)
             }
-        }
+
     }
 
     private fun forward() {
-        forward_button.setOnClickListener {
+
             if (cursor!!.moveToNext()) {
                 val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
                 val id = cursor!!.getLong(fieldIndex)
@@ -129,11 +129,11 @@ class MainActivity : AppCompatActivity() {
 
                 imageView.setImageURI(imageUri)
             }
-        }
+
     }
 
     private fun PlayAndPause() {
-        play_button.setOnClickListener {
+
             if (mTimer == null) {
                 mTimer = Timer()
                 mTimer!!.schedule(object : TimerTask() {
@@ -148,6 +148,6 @@ class MainActivity : AppCompatActivity() {
                 mTimer!!.cancel()
                 mTimer = null
             }
-        }
+
     }
 }
