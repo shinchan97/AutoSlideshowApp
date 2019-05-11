@@ -9,9 +9,9 @@ import android.provider.MediaStore
 import android.content.ContentUris
 import android.database.Cursor
 import android.os.Handler
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,13 +57,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        if (cursor != null) {
+            cursor!!.close()
+        }
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode){
             PERMISSION_REQUEST_CODE ->
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContentInfo()
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), PERMISSION_REQUEST_CODE)
+                        Toast.makeText(this, "The access to your Photo has been denied.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Please give a permission.", Toast.LENGTH_LONG).show()
+                    }
                 }
         }
     }
@@ -73,24 +84,19 @@ class MainActivity : AppCompatActivity() {
         val resolver = contentResolver
         cursor = resolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            null, // 項目
+            null, //item(s)
             null, //filter condition
             null, //parameter for filter
-            null) // sort
+            null) //sort
 
         if (cursor!!.moveToFirst()) {
-            do {
             // retrieve ID from the index
             val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
             val id = cursor!!.getLong(fieldIndex)
             val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
 
             imageView.setImageURI(imageUri)
-        } while (cursor!!.moveToNext())
         }
-
-        // TODO cursor.close() move to onDestroy()
-
     }
 
     private fun back() {
@@ -110,7 +116,6 @@ class MainActivity : AppCompatActivity() {
 
                 imageView.setImageURI(imageUri)
             }
-
     }
 
     private fun forward() {
@@ -129,13 +134,15 @@ class MainActivity : AppCompatActivity() {
 
                 imageView.setImageURI(imageUri)
             }
-
     }
 
     private fun PlayAndPause() {
 
             if (mTimer == null) {
                 mTimer = Timer()
+                play_button.text = "Pause"
+                Toast.makeText(this, "the button display has switched to pause", Toast.LENGTH_LONG).show()
+
                 mTimer!!.schedule(object : TimerTask() {
                     override fun run() {
                         mTimerSec += 0.1
@@ -147,7 +154,8 @@ class MainActivity : AppCompatActivity() {
             } else if (mTimer != null) {
                 mTimer!!.cancel()
                 mTimer = null
+                play_button.text = "Play"
+                Toast.makeText(this, "the button has switched back", Toast.LENGTH_LONG).show()
             }
-
     }
 }
